@@ -24,6 +24,9 @@ public class DiaryController {
     }
 
     final void post(final String body) {
+        if(body.length()>30){
+            throw new IllegalArgumentException("Diary content too long");
+        }
         diaryService.writeDiary(body);
     }
 
