@@ -34,6 +34,10 @@ public class DiaryController {
         diaryService.delete(id);
     }
 
+    final void restore(final String id) {
+        diaryService.restore(id);
+    }
+
     final void patch(final String id, final String body) {
         diaryService.update(id,body);
     }

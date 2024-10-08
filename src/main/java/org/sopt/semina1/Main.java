@@ -85,6 +85,11 @@ public class Main {
                             final String input = ConsoleIO.readLine();
                             server.delete(input);
                         }
+                        case "RESTORE" -> {
+                            ConsoleIO.printLine("복구할 id 를 입력하세요!");
+                            final String input = ConsoleIO.readLine();
+                            server.restore(input);
+                        }
                         case "PATCH" -> {
                             ConsoleIO.printLine("수정할 id 를 입력하세요!");
                             final String inputId = ConsoleIO.readLine();

@@ -1,5 +1,6 @@
 package org.sopt.semina1;
 
+import java.io.*;
 import java.util.Map;
 import java.util.stream.Collectors;
 import java.util.List;
@@ -8,23 +9,46 @@ import java.util.concurrent.atomic.AtomicLong;
 import java.util.stream.LongStream;
 
 public class DiaryRepository {
-    private final Map<Long, String> storage = new ConcurrentHashMap<>();
+    private Map<Long, String> storage = new ConcurrentHashMap<>();
+    private Map<Long, String> trashCan = new ConcurrentHashMap<>();
     private final AtomicLong numbering = new AtomicLong();
+    private final String diaryPath = "diaries.post";
+    private final String trashPath = "trash.post";
 
     public DiaryRepository() {
+        loadDiaries();
+        loadBin();
     }
 
     void save(final Diary diary){
         final Long id = numbering.addAndGet(1);
         storage.put(id, diary.getBody());
+        saveDiaries();
     }
 
     void putOne(Long id, String body){
         storage.put(id, body);
+        saveDiaries();
     }
 
     void deleteOne(Long id){
+        String body = storage.get(id);
         storage.remove(id);
+        trashCan.put(id, body);
+        saveDiaries();
+        saveBin();
+    }
+
+    String restore(Long id){
+        String body = trashCan.get(id);
+        if(body == null){
+            throw new IllegalArgumentException("There is no such removed Diary");
+        }
+        trashCan.remove(id);
+        putOne(id, body);
+        saveDiaries();
+        saveBin();
+        return body;
     }
 
     List<Diary> findAll(){
@@ -33,4 +57,38 @@ public class DiaryRepository {
                 .collect(Collectors.toList());
     }
 
+    private void saveDiaries() {
+        try (ObjectOutputStream oos = new ObjectOutputStream(new FileOutputStream(diaryPath))) {
+            oos.writeObject(storage);
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+    }
+
+    private void loadDiaries() {
+        try (ObjectInputStream ois = new ObjectInputStream(new FileInputStream(diaryPath))) {
+            storage = (Map<Long, String>) ois.readObject();
+        } catch (FileNotFoundException e) {
+            System.out.println("create new post file");
+        } catch (IOException | ClassNotFoundException e) {
+            e.printStackTrace();
+        }
+    }
+    private void saveBin() {
+        try (ObjectOutputStream oos = new ObjectOutputStream(new FileOutputStream(trashPath))) {
+            oos.writeObject(trashCan);
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+    }
+
+    private void loadBin() {
+        try (ObjectInputStream ois = new ObjectInputStream(new FileInputStream(trashPath))) {
+            trashCan = (Map<Long, String>) ois.readObject();
+        } catch (FileNotFoundException e) {
+            System.out.println("create new post file");
+        } catch (IOException | ClassNotFoundException e) {
+            e.printStackTrace();
+        }
+    }
 }
