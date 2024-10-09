@@ -130,6 +130,7 @@ public class Main {
                     - POST : 일기 작성하기
                     - DELETE : 일기 제거하기
                     - PATCH : 일기 수정하기
+                    - RESTORE : 휴지통에서 일기 복구하기
                     """;
 
         }

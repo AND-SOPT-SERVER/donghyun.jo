@@ -7,8 +7,13 @@ public class DiaryService {
     private final DiaryRepository diaryRepository = new DiaryRepository();
     private LocalDate lastUpdatedDate = LocalDate.now();
     private int updateCount = 0;
+    final static int MAX_LENGTH = 30;
 
     void writeDiary(final String body) {
+        // 이모지나 다른거 다 글자수 한개 차지
+        if(body.codePointCount(0, body.length()) > MAX_LENGTH){
+            throw new IllegalArgumentException("Diary content too long");
+        }
         final Diary diary = new Diary(null, body);
         diaryRepository.save(diary);
     }
