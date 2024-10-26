@@ -21,9 +21,6 @@ public class DiaryController {
     @PostMapping("/diaries")
     public ResponseEntity<DiaryIdResponce> createDiary(@RequestBody CreateDiaryRequest request) {
         Diary diary = new Diary(request.title, request.content, LocalDateTime.now(), request.category);
-        if (diary.isValid()){
-            throw new IllegalArgumentException("Diary Content length Exceeded");
-        }
         Long id = this.diaryService.createDiary(diary);
         DiaryIdResponce responce = new DiaryIdResponce(id);
         return ResponseEntity.ok(responce);
