@@ -1,5 +1,7 @@
 package org.sopt.diary.service;
 import org.sopt.diary.api.OrderBy;
+import org.sopt.diary.exception.DiaryExistingTitleException;
+import org.sopt.diary.exception.DiaryNotFoundException;
 import org.sopt.diary.repository.DiaryEntity;
 import org.sopt.diary.repository.DiaryRepository;
 import org.springframework.dao.EmptyResultDataAccessException;
@@ -19,12 +21,20 @@ public class DiaryService {
     }
 
     public Long createDiary(Diary diary) {
+        boolean existsByTitle = diaryRepository.existsByTitle(diary.getTitle());
+        if (existsByTitle) {
+            throw new DiaryExistingTitleException(diary.getTitle());
+        }
         DiaryEntity diaryEntity = diaryRepository.save(new DiaryEntity(diary));
         return diaryEntity.getId();
     }
 
     public Long updateDiary(Diary diary) {
         Optional<DiaryEntity> diaryEntity = diaryRepository.findById(diary.getId());
+        boolean existsByTitle = diaryRepository.existsByTitle(diary.getTitle());
+        if (existsByTitle) {
+            throw new DiaryExistingTitleException(diary.getTitle());
+        }
         if (diaryEntity.isPresent()){
             DiaryEntity tempDiary = diaryEntity.get();
             tempDiary.setTitle(diary.getTitle());
@@ -38,7 +48,7 @@ public class DiaryService {
         try{
             diaryRepository.deleteById(id);
         } catch (EmptyResultDataAccessException e){
-            throw new IllegalArgumentException("Diary does not exist");
+            throw new DiaryNotFoundException(id);
         }
         return id;
     }
@@ -47,10 +57,10 @@ public class DiaryService {
         Optional<DiaryEntity> diaryEntity = diaryRepository.findById(id);
         if (diaryEntity.isPresent()){
             DiaryEntity tempDiary = diaryEntity.get();
-            Diary diary = new Diary(tempDiary.getId(),tempDiary.title,tempDiary.content,tempDiary.getCreatedAt());
+            Diary diary = new Diary(tempDiary.getId(), tempDiary.title,tempDiary.content,tempDiary.getCreatedAt(), tempDiary.getCategory());
             return diary;
         }
-        throw new IllegalArgumentException("Diary does not exist");
+        throw new DiaryNotFoundException(id);
     }
 
     public List<Diary> getDiaryList(String category, OrderBy orderBy) {

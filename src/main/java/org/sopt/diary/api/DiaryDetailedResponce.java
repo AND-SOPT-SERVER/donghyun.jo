@@ -15,6 +15,9 @@ class DiaryDetailedResponce {
         this.content = content;
     }
 
+    public DiaryDetailedResponce() {
+    }
+
     Long getId() {
         return diaryId;
     }

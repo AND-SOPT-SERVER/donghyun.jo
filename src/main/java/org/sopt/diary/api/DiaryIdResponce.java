@@ -6,8 +6,9 @@ class DiaryIdResponce {
     DiaryIdResponce(Long id) {
         this.diaryId = id;
     }
-
+    DiaryIdResponce() {}
     Long getDiaryId() {
         return diaryId;
     }
+
 }

@@ -1,8 +1,11 @@
 package org.sopt.diary.api;
 
 
+import org.sopt.diary.exception.DiaryNotFoundException;
+import org.sopt.diary.exception.DiaryTooLongException;
 import org.sopt.diary.service.Diary;
 import org.sopt.diary.service.DiaryService;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
@@ -20,11 +23,16 @@ public class DiaryController {
 
     @PostMapping("/diaries")
     public ResponseEntity<DiaryIdResponce> createDiary(@RequestBody CreateDiaryRequest request) {
-        Diary diary = new Diary(request.title, request.content, LocalDateTime.now(), request.category);
-        Long id = this.diaryService.createDiary(diary);
-        DiaryIdResponce responce = new DiaryIdResponce(id);
-        return ResponseEntity.ok(responce);
+        try {
+            Diary diary = new Diary(request.getTitle(), request.getContent(), LocalDateTime.now(), request.getCategory());
+            Long id = this.diaryService.createDiary(diary);
+            DiaryIdResponce response = new DiaryIdResponce(id);
+            return ResponseEntity.ok(response);
+        } catch (DiaryTooLongException e) {
+            return ResponseEntity.badRequest().body(new DiaryIdResponce()); // 400 Bad Request
+        }
     }
+
 
     @GetMapping("/diaries/List")
     public ResponseEntity<DiaryListResponce> getDiaryList(
@@ -41,26 +49,36 @@ public class DiaryController {
 
     @GetMapping("/diaries")
     public ResponseEntity<DiaryDetailedResponce> getDiary(@RequestBody DiaryIdResponce request){
-        Diary diary = this.diaryService.findDiary(request.getDiaryId());
-        DiaryDetailedResponce responce = new DiaryDetailedResponce(diary.getId(),diary.getTitle(),diary.getCreatedAt(),diary.getContent());
-        return ResponseEntity.ok(responce);
+        try {
+            Diary diary = this.diaryService.findDiary(request.getDiaryId());
+            DiaryDetailedResponce responce = new DiaryDetailedResponce(diary.getId(),diary.getTitle(),diary.getCreatedAt(),diary.getContent());
+            return ResponseEntity.ok(responce);
+        } catch (DiaryNotFoundException e) {
+            return ResponseEntity.badRequest().body(new DiaryDetailedResponce());
+        }
     }
 
 
     @DeleteMapping("/diaries")
     public ResponseEntity<DiaryIdResponce> deleteDiary(@RequestParam DiaryIdRequest request){
-        Long id = request.diaryId;
-        id = this.diaryService.deleteDiary(id);
-        DiaryIdResponce responce = new DiaryIdResponce(id);
-        return ResponseEntity.ok(responce);
-
+        try {
+            Long id = request.diaryId;
+            id = this.diaryService.deleteDiary(id);
+            DiaryIdResponce responce = new DiaryIdResponce(id);
+            return ResponseEntity.ok(responce);
+        } catch (DiaryNotFoundException e) {
+            return ResponseEntity.badRequest().body(new DiaryIdResponce());
+        }
     }
 
     @PatchMapping("/diaries")
-    public ResponseEntity<DiaryIdResponce> patchDiary(@RequestParam DiaryIdRequest request){
-        Long id = request.diaryId;
-        id = this.diaryService.deleteDiary(id);
-        DiaryIdResponce responce = new DiaryIdResponce(id);
-        return ResponseEntity.ok(responce);
+    public ResponseEntity<DiaryIdResponce> patchDiary(@RequestBody UpdateDiaryRequest request){
+        try {
+            Diary diary = new Diary(request.getId(), request.getTitle(), request.getContent(), LocalDateTime.now(), request.getCategory());
+            this.diaryService.updateDiary(diary);
+            return ResponseEntity.ok(new DiaryIdResponce(diary.getId()));
+        } catch (DiaryTooLongException e) {
+            return ResponseEntity.badRequest().body(new DiaryIdResponce()); // 400 Bad Request
+        }
     }
 }

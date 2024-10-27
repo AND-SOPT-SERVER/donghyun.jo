@@ -1,6 +1,5 @@
 package org.sopt.diary.api;
 
-import java.time.LocalDateTime;
 
 class DiaryResponce {
     private Long diaryId;
