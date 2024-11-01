@@ -8,7 +8,6 @@ import org.springframework.dao.EmptyResultDataAccessException;
 import org.springframework.stereotype.Component;
 
 import java.util.ArrayList;
-import java.util.Comparator;
 import java.util.List;
 import java.util.Optional;
 
@@ -64,35 +63,28 @@ public class DiaryService {
     }
 
     public List<Diary> getDiaryList(String category, OrderBy orderBy) {
-        List<DiaryEntity> diaryEntities = diaryRepository.findAll();
-        diaryEntities = filterByCategory(diaryEntities, category);
-        diaryEntities = orderDiaryList(diaryEntities, orderBy);
         final List<Diary> diaries = new ArrayList<>();
+        final List<DiaryEntity> diaryEntities;
+        if (category.equals("none")){
+            if (orderBy == OrderBy.ASC) {
+                diaryEntities = diaryRepository.findAllOrderByBodyLengthAsc();
+            }
+            else {
+                diaryEntities = diaryRepository.findAllOrderByBodyLengthDesc();
+            }
+        }
+        else {
+            if (orderBy == OrderBy.ASC) {
+                diaryEntities = diaryRepository.findByCategoryOrderByBodyLengthAsc(Category.valueOf(category));
+            }
+            else {
+                diaryEntities = diaryRepository.findByCategoryOrderByBodyLengthDesc(Category.valueOf(category));
+            }
+        }
         for (DiaryEntity diaryEntity : diaryEntities) {
             diaries.add(new Diary(diaryEntity.getId(), diaryEntity.getTitle()));
         }
         return diaries;
-    }
-
-    private List<DiaryEntity> filterByCategory(List<DiaryEntity> diaryEntities, String category){
-        final List<DiaryEntity> filterdDiaries = new ArrayList<>();
-        for (DiaryEntity diaryEntity : diaryEntities) {
-            if (!category.equals("none") || diaryEntity.getCategory() == Category.valueOf(category)){
-                filterdDiaries.add(diaryEntity);
-            }
-        }
-        return filterdDiaries;
-    }
-
-    private List<DiaryEntity> orderDiaryList(List<DiaryEntity> diaryEntities, OrderBy orderBy) {
-        final List<DiaryEntity> filteredDiaries = new ArrayList<>(diaryEntities); // 원본 리스트 복사
-
-        if (orderBy == OrderBy.DESC) {
-            filteredDiaries.sort(Comparator.comparingInt(DiaryEntity::getLengthOfBody).reversed());
-        } else if (orderBy == OrderBy.ASC) {
-            filteredDiaries.sort(Comparator.comparingInt(DiaryEntity::getLengthOfBody));
-        }
-        return filteredDiaries;
     }
 
 }

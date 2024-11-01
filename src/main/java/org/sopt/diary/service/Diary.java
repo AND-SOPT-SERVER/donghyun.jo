@@ -8,15 +8,12 @@ public class Diary {
     private Long id;
     private final String title;
     private String content;
-    private int lengthOfBody;
     private LocalDateTime createdAt;
     private Category category;
-
 
     public Diary(String title, String content, LocalDateTime createdAt, Category category) {
         this.title = title;
         this.content = content;
-        this.lengthOfBody = content.length();
         this.createdAt = createdAt;
         this.category = category;
     }
@@ -26,7 +23,6 @@ public class Diary {
         this.title = title;
         this.content = content;
         vaildateLengthOfBody();
-        this.lengthOfBody = content.length();
         this.createdAt = createdAt;
         this.category = category;
     }
@@ -38,7 +34,7 @@ public class Diary {
 
 
     public void vaildateLengthOfBody() {
-        if (this.lengthOfBody > 30){
+        if (this.content.length() > 30){
             throw new DiaryTooLongException();
         }
     }
@@ -54,10 +50,6 @@ public class Diary {
 
     public String getContent() {
         return content;
-    }
-
-    public int getLengthOfBody() {
-        return lengthOfBody;
     }
 
     public LocalDateTime getCreatedAt() {

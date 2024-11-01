@@ -6,7 +6,8 @@ build/
 src/.DS_Store
 src/main/.DS_Store
 
-!**/src/main/resources/application.yaml
+*.yml
+.yml
 
 ### IntelliJ IDEA ###
 .idea/modules.xml

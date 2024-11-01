@@ -19,9 +19,6 @@ public class DiaryEntity {
     public String content;
 
     @Column(nullable = false)
-    public int lengthOfBody;
-
-    @Column(nullable = false)
     public LocalDateTime createdAt;
 
     @Column(nullable = false)
@@ -30,7 +27,6 @@ public class DiaryEntity {
     public DiaryEntity(Diary diary) {
         this.title = diary.getTitle();
         this.content = diary.getContent();
-        this.lengthOfBody = diary.getLengthOfBody();
         this.createdAt = diary.getCreatedAt();
         this.category = diary.getCategory();
     }
@@ -51,9 +47,6 @@ public class DiaryEntity {
         return category;
     }
 
-    public int getLengthOfBody() {
-        return lengthOfBody;
-    }
     public LocalDateTime getCreatedAt() {
         return createdAt;
     }
