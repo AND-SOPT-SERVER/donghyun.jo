@@ -7,7 +7,7 @@ src/.DS_Store
 src/main/.DS_Store
 
 *.yml
-.yml
+*.yaml
 
 ### IntelliJ IDEA ###
 .idea/modules.xml
