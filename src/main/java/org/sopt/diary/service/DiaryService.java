@@ -5,8 +5,10 @@ import org.sopt.diary.exception.DiaryNotFoundException;
 import org.sopt.diary.repository.DiaryEntity;
 import org.sopt.diary.repository.DiaryRepository;
 import org.springframework.dao.EmptyResultDataAccessException;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Component;
 
+import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
@@ -86,5 +88,16 @@ public class DiaryService {
         }
         return diaries;
     }
+
+    // 커서 기반 페이징
+    public List<Diary> getDiaryByPage(int lastContentLength, LocalDateTime lastCreatedAt, Pageable pageable) {
+        final List<Diary> diaries = new ArrayList<>();
+        final List<DiaryEntity> diaryEntities = diaryRepository.findNextDiariesByCursor(lastContentLength, lastCreatedAt, pageable);
+        for (DiaryEntity diaryEntity : diaryEntities) {
+            diaries.add(new Diary(diaryEntity.getId(), diaryEntity.getTitle()));
+        }
+        return diaries;
+    }
+
 
 }

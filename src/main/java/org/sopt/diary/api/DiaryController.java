@@ -5,7 +5,8 @@ import org.sopt.diary.exception.DiaryNotFoundException;
 import org.sopt.diary.exception.DiaryTooLongException;
 import org.sopt.diary.service.Diary;
 import org.sopt.diary.service.DiaryService;
-import org.springframework.http.HttpStatus;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
@@ -46,6 +47,27 @@ public class DiaryController {
         }
         return ResponseEntity.ok(new DiaryListResponce(diaryResponces));
     }
+
+    // 페이징 구현
+    @GetMapping("/diaries/page")
+    public ResponseEntity<DiaryListResponce> getDiaryPage(
+            @RequestParam int lastContentLength,
+            @RequestParam LocalDateTime lastCreatedAt,
+            @RequestParam(defaultValue = "0") int page,
+            @RequestParam(defaultValue = "10") int size) {
+
+        // Pageable 객체 생성
+        Pageable pageable = PageRequest.of(page, size);
+
+        List<Diary> diaries = this.diaryService.getDiaryByPage(lastContentLength, lastCreatedAt, pageable);
+
+        final List<DiaryResponce> diaryResponces = new ArrayList<>();
+        for (Diary diary : diaries) {
+            diaryResponces.add(new DiaryResponce(diary.getId(), diary.getTitle()));
+        }
+        return ResponseEntity.ok(new DiaryListResponce(diaryResponces));
+    }
+
 
     @GetMapping("/diaries")
     public ResponseEntity<DiaryDetailedResponce> getDiary(@RequestBody DiaryIdResponce request){
